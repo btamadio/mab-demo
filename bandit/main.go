@@ -3,18 +3,21 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/stitchfix/mab/numint"
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/stitchfix/mab"
+	"github.com/stitchfix/mab/numint"
 )
 
 type randomizeRequest struct {
-	Unit    string
-	Context json.RawMessage
+	Unit    string          `json:"unit"`
+	Context json.RawMessage `json:"context"`
 }
 
 var bandit mab.Bandit
@@ -42,7 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	cli := &http.Client{}
+	cli := &http.Client{Timeout: time.Second}
 	url := "http://reward-service/rewards"
 	parser := mab.ParseFunc(mab.BetaFromJSON)
 	marshaler := mab.MarshalFunc(json.Marshal)
@@ -61,7 +64,7 @@ func main() {
 	})
 
 	server := &http.Server{
-		Handler: r,
+		Handler: handlers.LoggingHandler(os.Stdout, r),
 		Addr:    "0.0.0.0:80",
 	}
 
