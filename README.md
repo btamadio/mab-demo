@@ -1,6 +1,6 @@
 ## Running
 
-`docker compose up`
+`docker compose build && docker compose up`
 
 request rewards from reward service:
 
